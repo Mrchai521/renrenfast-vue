@@ -2,6 +2,7 @@
   <div>
     <el-switch v-model="draggable" active-text="开启拖拽" inactive-text="关闭拖拽"></el-switch>
     <el-button v-if="draggable" @click="batchSave">批量保存</el-button>
+    <el-button type="danger" @click="batchDelete">批量删除</el-button>
     <el-tree
       :data="menus"
       :props="defaultProps"
@@ -12,6 +13,7 @@
       :draggable="draggable"
       :allow-drop="allowDrop"
       @node-drop="handleDrop"
+      ref="menuTree"
     >
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <!-- 显示节点的名称  -->
@@ -20,6 +22,12 @@
           <!-- 两个按钮    => 箭头函数 调用指定的方法 -->
           <el-button v-if="node.level<=2" type="text" size="mini" @click="() => append(data)">新增</el-button>
           <el-button type="text" size="mini" @click="()=>update(data)">修改</el-button>
+          <el-button
+            v-if="node.childNodes.length ==0"
+            type="text"
+            size="mini"
+            @click="() => remove(node, data)"
+          >删除</el-button>
           <el-button
             v-if="node.childNodes.length==0"
             type="text"
@@ -56,7 +64,7 @@ export default {
   data() {
     return {
       //是否进行拖拽
-      draggable:false,
+      draggable: false,
       pCid: [],
       //拖拽后，要修改的节点信息
       updateNodes: [],
@@ -86,15 +94,15 @@ export default {
     };
   },
   methods: {
-    batchSave(){
+    batchSave() {
       this.$http({
-        url:this.$http.adornUrl("/product/pmscategory/update/sort"),
-        method:"post",
-        data:this.$http.adornData(this.updateNodes,false),
-      }).then(({data})=>{
+        url: this.$http.adornUrl("/product/pmscategory/update/sort"),
+        method: "post",
+        data: this.$http.adornData(this.updateNodes, false)
+      }).then(({ data }) => {
         this.$message({
-          type:"success",
-          message:"菜单顺序等修改成功！"
+          type: "success",
+          message: "菜单顺序等修改成功！"
         });
         //刷新出新的菜单
         this.getMenus();
@@ -184,16 +192,15 @@ export default {
       }
       //3、当前拖拽节点的最新层级
       console.log("updateNodes", this.updateNodes);
-
     },
-      // 递归
+    // 递归
     updateChildNodeLevel(node) {
       if (node.childNodes.length > 0) {
         for (let i = 0; i < node.childNodes.length; i++) {
           var cNode = node.childNodes[i].data;
           this.updateNodes.push({
             catId: cNode.catId,
-            catLevel: node.childNodes[i].level,
+            catLevel: node.childNodes[i].level
           });
           // 递归
           this.updateChildNodeLevel(node.childNodes[i]);
@@ -295,6 +302,39 @@ export default {
         this.dialogVisible = false;
       });
     },
+    //批量删除
+    batchDelete() {
+      let catIds = [];
+      let catNames = [];
+      let checkedNodes = this.$refs.menuTree.getCheckedNodes();
+      console.log("被选中的元素", checkedNodes);
+      for (let i = 0; i < checkedNodes.length; i++) {
+        catIds.push(checkedNodes[i].catId);
+        catNames.push(checkedNodes[i].name);
+      }
+
+      //确定是否删除的弹框
+      this.$confirm(`是否批量删除【${catNames}】菜单?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$http({
+            url: this.$http.adornUrl("/product/category/delete"),
+            method: "post",
+            data: this.$http.adornData(catIds, false)
+          }).then(({ data }) => {
+            this.$message({
+              message: "菜单批量删除成功",
+              type: "success"
+            });
+            this.getMenus();
+          });
+        })
+        .catch(() => {});
+    },
+
     //删除分类
     remove(node, data) {
       this.$confirm(`是否删除[${data.name}]菜单?`, "提示", {
