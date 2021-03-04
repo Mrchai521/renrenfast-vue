@@ -89,7 +89,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status" >
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === '0'" size="small" type="danger">禁用</el-tag>
+          <el-tag v-if="scope.row.status === '1'" size="small" type="danger">禁用</el-tag>
           <el-tag v-else size="small">正常</el-tag>
         </template>
       </el-table-column>
@@ -106,7 +106,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-             v-if = "isAuth('system:type:update')"
+             v-if = "isAuth('system:type:edit')"
           >修改</el-button>
           <el-button
             size="mini"
@@ -138,8 +138,8 @@
         </el-form-item>
         <el-form-item label="状态">
          <el-radio-group v-model="form.status">
-          <el-radio :label="0">禁用</el-radio>
-          <el-radio :label="1">正常</el-radio>
+          <el-radio :label="0">正常</el-radio>
+          <el-radio :label="1">禁用</el-radio>
         </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -183,8 +183,8 @@ export default {
       open: false,
       // 状态数据字典
       statusOptions: [
-        {value:"0",label:"禁用"},
-        {value:"1",label:"正常"}
+        {value:"0",label:"正常"},
+        {value:"1",label:"禁用"}
       ],
       // 查询参数
       queryParams: {
@@ -275,7 +275,9 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+      console.log("提交按钮！！！");
       this.$refs["form"].validate(valid => {
+        console.log("提交按钮：",valid);
         if (valid) {
           if (this.form.dictId != null) {
             updateType(this.form).then(response => {
@@ -285,6 +287,7 @@ export default {
             });
           } else {
             addType(this.form).then(response => {
+              console.log("提交按钮完毕：",response);
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();

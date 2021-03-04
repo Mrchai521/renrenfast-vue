@@ -86,7 +86,7 @@
       <el-table-column label="创建时间" align="center" prop="createTime" />
       <el-table-column label="状态" align="center" prop="status" >
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === '0'" size="small" type="danger">禁用</el-tag>
+          <el-tag v-if="scope.row.status === '1'" size="small" type="danger">禁用</el-tag>
           <el-tag v-else size="small">正常</el-tag>
         </template>
       </el-table-column>
@@ -191,8 +191,8 @@ export default {
       title: "",
        // 类型数据字典
       typeOptions: [
-        {value:"0",label:"禁用"},
-        {value:"1",label:"正常"}
+        {value:"0",label:"正常"},
+        {value:"1",label:"禁用"}
       ],
       // 是否显示弹出层
       open: false,
