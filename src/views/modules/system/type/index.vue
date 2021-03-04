@@ -11,13 +11,17 @@
         />
       </el-form-item>
       <el-form-item label="字典类型" prop="dictType">
-        <el-select v-model="queryParams.dictType" placeholder="请选择字典类型" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
-        </el-select>
+        <el-input v-model="queryParams.dictType" placeholder="请输入字典类型" clearable size="small" style="width: 240px" @keyup.enter.native="handleQuery">
+        </el-input>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+        <el-select v-model="queryParams.status" placeholder="字典状态" clearable size="small" style="width: 240px">
+         <el-option
+            v-for="dict in statusOptions"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -34,7 +38,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:type:add']"
+          v-if = "isAuth('system:type:add')"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -45,7 +49,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:type:edit']"
+          v-if = "isAuth('system:type:edit')"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -56,7 +60,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:type:remove']"
+          v-if = "isAuth('system:type:remove')"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,7 +70,7 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:type:export']"
+          v-if = "isAuth('system:type:export')"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -76,9 +80,25 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="字典主键" align="center" prop="dictId" />
       <el-table-column label="字典名称" align="center" prop="dictName" />
-      <el-table-column label="字典类型" align="center" prop="dictType" />
-      <el-table-column label="状态" align="center" prop="status" />
+      <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true" >
+        <template slot-scope= "scope">
+          <router-link :to="'/dictData/'+scope.row.dictId" class="link-type">
+          <span>{{scope.row.dictType}}</span>
+          </router-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" align="center" prop="status" >
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status === '0'" size="small" type="danger">禁用</el-tag>
+          <el-tag v-else size="small">正常</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180px">
+        <template slot-scope="scope">
+          <span>{{scope.row.createTime}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -86,14 +106,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:type:edit']"
+             v-if = "isAuth('system:type:update')"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:type:remove']"
+             v-if = "isAuth('system:type:remove')"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -114,14 +134,13 @@
           <el-input v-model="form.dictName" placeholder="请输入字典名称" />
         </el-form-item>
         <el-form-item label="字典类型" prop="dictType">
-          <el-select v-model="form.dictType" placeholder="请选择字典类型">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
+             <el-input v-model="form.dictType" placeholder="请输入字典类型" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="1">请选择字典生成</el-radio>
-          </el-radio-group>
+         <el-radio-group v-model="form.status">
+          <el-radio :label="0">禁用</el-radio>
+          <el-radio :label="1">正常</el-radio>
+        </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
@@ -162,6 +181,11 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 状态数据字典
+      statusOptions: [
+        {value:"0",label:"禁用"},
+        {value:"1",label:"正常"}
+      ],
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -174,6 +198,12 @@ export default {
       form: {},
       // 表单校验
       rules: {
+         dictName: [
+          { required: true, message: "字典名称不能为空", trigger: "blur" }
+        ],
+        dictType: [
+          { required: true, message: "字典类型不能为空", trigger: "blur" }
+        ]
       }
     };
   },
@@ -228,16 +258,17 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
+      //this.reset();
       this.open = true;
       this.title = "添加字典类型";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
+      //this.reset();
       const dictId = row.dictId || this.ids
       getType(dictId).then(response => {
-        this.form = response.data;
+        console.log("修改按钮：",response)
+        this.form = response.data.info;
         this.open = true;
         this.title = "修改字典类型";
       });

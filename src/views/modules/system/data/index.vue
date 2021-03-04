@@ -1,14 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="字典排序" prop="dictSort">
-        <el-input
-          v-model="queryParams.dictSort"
-          placeholder="请输入字典排序"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="字典名称" prop="dictType">
+      <el-select v-model="queryParams.dictType" size="small">
+        <el-option v-for="item in typeOptions" :key="item.dictId" :label="item.dictName" :value="item.dictType"></el-option>
+      </el-select>
       </el-form-item>
       <el-form-item label="字典标签" prop="dictLabel">
         <el-input
@@ -19,50 +15,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="字典键值" prop="dictValue">
-        <el-input
-          v-model="queryParams.dictValue"
-          placeholder="请输入字典键值"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="字典类型" prop="dictType">
-        <el-select v-model="queryParams.dictType" placeholder="请选择字典类型" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="样式属性" prop="cssClass">
-        <el-input
-          v-model="queryParams.cssClass"
-          placeholder="请输入样式属性"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="表格回显样式" prop="listClass">
-        <el-input
-          v-model="queryParams.listClass"
-          placeholder="请输入表格回显样式"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否默认" prop="isDefault">
-        <el-input
-          v-model="queryParams.isDefault"
-          placeholder="请输入是否默认"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+          <el-option
+            v-for="dict in statusOptions"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -120,15 +80,16 @@
     <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="字典编码" align="center" prop="dictCode" />
-      <el-table-column label="字典排序" align="center" prop="dictSort" />
       <el-table-column label="字典标签" align="center" prop="dictLabel" />
       <el-table-column label="字典键值" align="center" prop="dictValue" />
-      <el-table-column label="字典类型" align="center" prop="dictType" />
-      <el-table-column label="样式属性" align="center" prop="cssClass" />
-      <el-table-column label="表格回显样式" align="center" prop="listClass" />
-      <el-table-column label="是否默认" align="center" prop="isDefault" />
-      <el-table-column label="状态" align="center" prop="status" />
-      <el-table-column label="备注" align="center" prop="remark" />
+      <el-table-column label="字典排序" align="center" prop="dictSort" />
+      <el-table-column label="创建时间" align="center" prop="createTime" />
+      <el-table-column label="状态" align="center" prop="status" >
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status === '0'" size="small" type="danger">禁用</el-tag>
+          <el-tag v-else size="small">正常</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -201,7 +162,8 @@
 </template>
 
 <script>
-import { listData, getData, delData, addData, updateData, exportData } from "@/api/data";
+import { listData, getData, delData, addData, updateData, exportData, findData } from "@/api/data";
+import { listType, getType } from "@/api/type";
 
 export default {
   name: "Data",
@@ -223,8 +185,15 @@ export default {
       total: 0,
       // 字典数据表格数据
       dataList: [],
+      // 状态数据字典
+      statusOptions: [],
       // 弹出层标题
       title: "",
+       // 类型数据字典
+      typeOptions: [
+        {value:"0",label:"禁用"},
+        {value:"1",label:"正常"}
+      ],
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -248,16 +217,48 @@ export default {
     };
   },
   created() {
-    this.getList();
+    //this.getList();
+    const dictId = this.$router.currentRoute.params && this.$router.currentRoute.params.dictId;
+    this.getType(dictId);
+    this.getTypeList();
+    this.getDicts("sys_nomal_disable").then(response=>{
+      this.statusOptions = response.data;
+    });
   },
   methods: {
+    /**
+     * 通过dictType查询列表
+     */
+    getListByDicType(dictType){
+        findData(dictType).then(response=>{
+          console.log("findData查询字典类型详情 :",response)
+           this.dataList = response.data.page;
+           this.total = response.data.page.length;
+           this.loading = false;
+        });
+    },
     /** 查询字典数据列表 */
     getList() {
       this.loading = true;
       listData(this.queryParams).then(response => {
-        this.dataList = response.rows;
-        this.total = response.total;
+        this.dataList = response.data.page;
+        this.total = response.data.page.length;
         this.loading = false;
+      });
+    },
+    /**查询字典类型详情 */
+    getType(dictId){
+      getType(dictId).then(response=>{
+        
+        this.queryParams.dictType = response.data.info.dictType;
+        //this.getList();
+        this.getListByDicType(response.data.info.dictType)
+      });
+    },
+    /**查询字典类型列表 */
+    getTypeList(){
+      listType().then(response=>{
+        this.typeOptions = response.data.list;
       });
     },
     // 取消按钮

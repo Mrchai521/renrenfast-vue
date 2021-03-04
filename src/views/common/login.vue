@@ -116,7 +116,7 @@
       width: 100%;
       height: 100%;
       content: "";
-      background-image: url(~@/assets/img/login_bg.jpg);
+      background-image: url('https://api.dujin.org/bing/1920.php');
       background-size: cover;
     }
     .site-content__wrapper {

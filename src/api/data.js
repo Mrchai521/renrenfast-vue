@@ -1,53 +1,61 @@
-import request from '@/utils/request'
-
+// import request from '@/utils/request'
+import httpRequest from '@/utils/httpRequest'
 // 查询字典数据列表
 export function listData(query) {
-  return request({
-    url: '/system/data/list',
+  return httpRequest({
+    url: httpRequest.adornUrl('/system/data/list'),
     method: 'get',
-    params: query
+    data: httpRequest.adornData(query, false)
+  })
+}
+
+// 通过dictType查询字典数据列表
+export function findData(dictType) {
+  return httpRequest({
+    url: httpRequest.adornUrl(`/system/data/getListByDictType/${dictType}`),
+    method: 'get',
   })
 }
 
 // 查询字典数据详细
 export function getData(dictCode) {
-  return request({
-    url: '/system/data/' + dictCode,
+  return httpRequest({
+    url: httpRequest.adornUrl(`/system/data/${dictCode}`),
     method: 'get'
   })
 }
 
 // 新增字典数据
 export function addData(data) {
-  return request({
-    url: '/system/data',
-    method: 'post',
-    data: data
+  return httpRequest({
+    url: httpRequest.adornUrl('/system/data'),
+    method: 'get',
+    data: httpRequest.adornData(data, false)
   })
 }
 
 // 修改字典数据
 export function updateData(data) {
-  return request({
-    url: '/system/data',
+  return httpRequest({
+    url: httpRequest.adornUrl('/system/data'),
     method: 'put',
-    data: data
+    data: httpRequest.adornData(data, false)
   })
 }
 
 // 删除字典数据
 export function delData(dictCode) {
-  return request({
-    url: '/system/data/' + dictCode,
+  return httpRequest({
+    url: httpRequest.adornUrl(`/system/data/${dictCode}`),
     method: 'delete'
   })
 }
 
 // 导出字典数据
 export function exportData(query) {
-  return request({
-    url: '/system/data/export',
+  return httpRequest({
+    url: httpRequest.adornUrl('/system/data/export'),
     method: 'get',
-    params: query
+    data: httpRequest.adornData(query, false)
   })
 }
