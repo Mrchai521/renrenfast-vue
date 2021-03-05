@@ -3,9 +3,16 @@ import httpRequest from '@/utils/httpRequest'
 // 查询字典类型列表
 export function listType(query) {
   return httpRequest({
-    url: httpRequest.adornUrl("/system/type/list"),
+    url: httpRequest.adornUrl("/system/type/listByPage"),
     method: "get",
-    data: httpRequest.adornData(query, false)
+    // data: httpRequest.adornData(query, false)
+    params: httpRequest.adornParams({
+      'page': query.pageNum,
+      'limit': query.pageSize,
+      'dictName': query.dictName,
+      'dictType': query.dictType,
+      'status': query.status
+    })
   })
 }
 

@@ -3,9 +3,16 @@ import httpRequest from '@/utils/httpRequest'
 // 查询字典数据列表
 export function listData(query) {
   return httpRequest({
-    url: httpRequest.adornUrl('/system/data/list'),
+    url: httpRequest.adornUrl('/system/data/listByPage'),
     method: 'get',
-    data: httpRequest.adornData(query, false)
+    // data: httpRequest.adornData(query, false)
+    params: httpRequest.adornParams({
+      'page': query.pageNum,
+      'limit': query.pageSize,
+      'dictLabel': query.dictLabel,
+      'dictType': query.dictType,
+      'status': query.status
+    })
   })
 }
 
@@ -29,7 +36,7 @@ export function getData(dictCode) {
 export function addData(data) {
   return httpRequest({
     url: httpRequest.adornUrl('/system/data'),
-    method: 'get',
+    method: 'post',
     data: httpRequest.adornData(data, false)
   })
 }
