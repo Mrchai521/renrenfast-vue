@@ -307,15 +307,30 @@ export default {
         if (valid) {
           if (this.form.deptId != undefined) {
             updateDept(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
+              if (response.data.code == 0) {
+                this.msgSuccess("修改成功");
+                this.open = false;
+                this.getList();
+              } else {
+                this.$message.error(response.data.msg);
+              }
             });
           } else {
             addDept(this.form).then(response => {
-              this.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
+              console.log("提交按钮：response", response);
+              if (response.data.code == 0) {
+                this.$message({
+                  message: "新增成功",
+                  type: "success",
+                  duration: 1500,
+                  onClose: () => {
+                    this.open = false;
+                    this.getList();
+                  }
+                });
+              } else {
+                this.$message.error(response.data.msg);
+              }
             });
           }
         }
@@ -335,9 +350,16 @@ export default {
         .then(function() {
           return delDept(row.deptId);
         })
-        .then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
+        .then(response => {
+          if (response.data.code == 0) {
+            this.getList();
+            this.$message({
+              message: "删除成功",
+              type: "success"
+            });
+          } else {
+            this.$message.error(response.data.message);
+          }
         });
     }
   }

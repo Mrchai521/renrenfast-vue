@@ -27,7 +27,7 @@ export function findData(dictType) {
 // 查询字典数据详细
 export function getData(dictCode) {
   return httpRequest({
-    url: httpRequest.adornUrl(`/system/data/${dictCode}`),
+    url: httpRequest.adornUrl(`/system/data/type/${dictCode}`),
     method: 'get'
   })
 }

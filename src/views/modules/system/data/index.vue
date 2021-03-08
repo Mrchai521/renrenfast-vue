@@ -44,13 +44,7 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-        >新增</el-button>
+        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -73,13 +67,7 @@
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-        >导出</el-button>
+        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -99,12 +87,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-          >修改</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button
             size="mini"
             type="text"
@@ -139,12 +122,15 @@
           <el-input v-model="form.dictValue" placeholder="请输入字典键值" />
         </el-form-item>
         <el-form-item label="显示排序" prop="dictSort">
-          <el-input-number v-model="form.dictSort" controls-position="right"  :min="1" :max="10"/>
+          <el-input-number v-model="form.dictSort" controls-position="right" :min="1" :max="10" />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
-            <el-radio :label="0">正常</el-radio>
-            <el-radio :label="1">禁用</el-radio>
+            <el-radio
+              v-for="dict in statusOptions"
+              :key="dict.value"
+              :label="dict.value"
+            >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -166,7 +152,6 @@ import {
   delData,
   addData,
   updateData,
-  exportData,
   findData
 } from "@/api/data";
 import { listType, getType } from "@/api/type";
@@ -355,8 +340,8 @@ export default {
                     this.getList();
                   }
                 });
-              }else{
-                 this.$message.error(response.data.msg);
+              } else {
+                this.$message.error(response.data.msg);
               }
             });
           } else {
@@ -371,8 +356,8 @@ export default {
                     this.getList();
                   }
                 });
-              }else{
-                 this.$message.error(response.data.msg);
+              } else {
+                this.$message.error(response.data.msg);
               }
             });
           }

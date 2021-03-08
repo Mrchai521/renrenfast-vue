@@ -158,10 +158,13 @@
           <el-input v-model="form.dictType" placeholder="请输入字典类型" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio :label="0">正常</el-radio>
-            <el-radio :label="1">禁用</el-radio>
-          </el-radio-group>
+         <el-radio-group v-model="form.status">
+                <el-radio
+                  v-for="dict in statusOptions"
+                  :key="dict.value"
+                  :label="dict.value"
+                >{{dict.label}}</el-radio>
+              </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
@@ -181,8 +184,7 @@ import {
   getType,
   delType,
   addType,
-  updateType,
-  exportType
+  updateType
 } from "@/api/type";
 
 export default {
