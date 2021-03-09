@@ -6,7 +6,11 @@ export function listDept(query) {
   return httpRequest({
     url: httpRequest.adornUrl(`/system/dept/list`),
     method: 'get',
-    data: httpRequest.adornData(query, false)
+    // data: httpRequest.adornData(query, false)
+    params: httpRequest.adornParams({
+      'deptName': query.deptName,
+      'status': query.status
+    })
   })
 }
 

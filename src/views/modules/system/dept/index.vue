@@ -37,7 +37,7 @@
       v-loading="loading"
       :data="deptList"
       row-key="deptId"
-      default-expand-all
+      default-expand-all="true"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
       <el-table-column prop="deptName" label="部门名称" width="260"></el-table-column>
