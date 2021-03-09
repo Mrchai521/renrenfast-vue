@@ -57,7 +57,7 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="addOrUpdateHandle()">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -66,7 +66,7 @@
           icon="el-icon-edit"
           size="mini"
           :disabled="single"
-          @click="handleUpdate"
+          @click="addOrUpdateHandle"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -76,7 +76,7 @@
           icon="el-icon-delete"
           size="mini"
           :disabled="multiple"
-          @click="handleDelete"
+          @click="deleteHandle"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -238,7 +238,6 @@ export default {
           roleName: this.queryParams.roleName
         })
       }).then(({ data }) => {
-        console.log("获取数据列表：", data);
         if (data && data.code === 0) {
           this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
