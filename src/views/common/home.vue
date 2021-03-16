@@ -25,14 +25,14 @@
       </el-col>
     </el-row>
 
-    
+
   </div>
 </template>
 
 <script>
 import PanelGroup from "./../dashboard/PanelGroup"
 import LineChart from "./..//dashboard/LineChart"
-import RaddarChart from "./..//dashboard/RaddarChart"
+// import RaddarChart from "./..//dashboard/RaddarChart"
 import PieChart from "./../dashboard/PieChart"
 import BarChart from "./../dashboard/BarChart"
 
@@ -60,7 +60,7 @@ export default {
   components: {
     PanelGroup,
     LineChart,
-    RaddarChart,
+    // RaddarChart,
     PieChart,
     BarChart
   },

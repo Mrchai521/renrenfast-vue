@@ -17,37 +17,39 @@
         <el-input v-model="dataForm.roleName" placeholder="角色名称"></el-input>
       </el-form-item>
       <el-form-item label="权限字符" prop="roleKey">
-        <el-input v-model="dataForm.roleKey" placeholder="请输入权限字符" />
+        <el-input v-model="dataForm.roleKey" placeholder="请输入权限字符"/>
       </el-form-item>
       <el-form-item label="角色顺序" prop="roleSort">
-        <el-input-number v-model="dataForm.roleSort" controls-position="right" :min="0" />
+        <el-input-number v-model="dataForm.roleSort" controls-position="right" :min="0"/>
       </el-form-item>
       <el-form-item label="状态">
         <el-radio-group v-model="dataForm.status">
           <el-radio
             v-for="dict in statusOptions"
             :key="dict.value"
-            :label="dict.label"
-          >{{dict.label}}</el-radio>
+            :label="dict.value"
+          >{{ dict.label }}
+          </el-radio>
         </el-radio-group>
       </el-form-item>
-       <el-form-item label="菜单权限">
-          <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
-          <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">全选/全不选</el-checkbox>
-          <el-checkbox v-model="dataForm.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">父子联动</el-checkbox>
-          <el-tree
-            class="tree-border"
-            :data="menuList"
-            show-checkbox
-            ref="menuListTree"
-            node-key="id"
-            :check-strictly="!dataForm.menuCheckStrictly"
-            empty-text="加载中，请稍后"
-            :props="menuListTreeProps"
-          ></el-tree>
-        </el-form-item>
+      <el-form-item label="菜单权限">
+        <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
+        <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">全选/全不选</el-checkbox>
+        <el-checkbox v-model="dataForm.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">父子联动
+        </el-checkbox>
+        <el-tree
+          class="tree-border"
+          :data="menuList"
+          show-checkbox
+          ref="menuListTree"
+          node-key="id"
+          :check-strictly="!dataForm.menuCheckStrictly"
+          empty-text="加载中，请稍后"
+          :props="menuListTreeProps"
+        ></el-tree>
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="dataForm.remark"  type="textarea" placeholder="请输入内容"></el-input>
+        <el-input v-model="dataForm.remark" type="textarea" placeholder="请输入内容"></el-input>
       </el-form-item>
       <!-- <el-form-item size="mini" label="授权">
         <el-tree
@@ -68,7 +70,8 @@
 </template>
 
 <script>
-import { treeDataTranslate } from "@/utils";
+import {treeDataTranslate} from "@/utils";
+
 export default {
   data() {
     return {
@@ -78,16 +81,18 @@ export default {
         label: "name",
         children: "children"
       },
-      //字典状态
+      menuExpand: false,
+      menuNodeAll: false,
+      // 字典状态
       statusOptions: [
-        { value: "0", label: "正常" },
-        { value: "1", label: "禁用" }
+        {value: "0", label: "正常"},
+        {value: "1", label: "禁用"}
       ],
       dataForm: {
         id: 0,
         roleKey: "",
         roleSort: "",
-        menuCheckStrictly:'',
+        menuCheckStrictly: '',
         roleName: "",
         status: "",
         remark: ""
@@ -95,13 +100,13 @@ export default {
       },
       dataRule: {
         roleName: [
-          { required: true, message: "角色名称不能为空", trigger: "blur" }
+          {required: true, message: "角色名称不能为空", trigger: "blur"}
         ],
         roleKey: [
-          { required: true, message: "权限字符不能为空", trigger: "blur" }
+          {required: true, message: "权限字符不能为空", trigger: "blur"}
         ],
         roleSort: [
-          { required: true, message: "角色顺序不能为空", trigger: "blur" }
+          {required: true, message: "角色顺序不能为空", trigger: "blur"}
         ]
       },
       tempKey: -666666 // 临时key, 用于解决tree半选中状态项不能传给后台接口问题. # 待优化
@@ -115,7 +120,7 @@ export default {
         method: "get",
         params: this.$http.adornParams()
       })
-        .then(({ data }) => {
+        .then(({data}) => {
           this.menuList = treeDataTranslate(data, "menuId");
         })
         .then(() => {
@@ -131,9 +136,12 @@ export default {
               url: this.$http.adornUrl(`/sys/role/info/${this.dataForm.id}`),
               method: "get",
               params: this.$http.adornParams()
-            }).then(({ data }) => {
+            }).then(({data}) => {
               if (data && data.code === 0) {
                 this.dataForm.roleName = data.role.roleName;
+                this.dataForm.roleKey = data.role.roleKey;
+                this.dataForm.roleSort = data.role.roleSort;
+                this.dataForm.status = data.role.status;
                 this.dataForm.remark = data.role.remark;
                 var idx = data.role.menuIdList.indexOf(this.tempKey);
                 if (idx !== -1) {
@@ -148,37 +156,24 @@ export default {
           }
         });
     },
-     // 树权限（展开/折叠）
+    // 树权限（展开/折叠）
     handleCheckedTreeExpand(value, type) {
-      if (type == 'menu') {
-        let treeList = this.menuList;
-        console.log("树的列表：",treeList)
-        console.log("menuListTree == = ",this.$refs.menuListTree)
-        for (let i = 0; i < treeList.length; i++) {
-          this.$refs.menuListTree.nodesMap[treeList[i].id].expanded = value;
-        }
-      } else if (type == 'dept') {
-        let treeList = this.menuList;
-        for (let i = 0; i < treeList.length; i++) {
-          this.$refs.dept.store.nodesMap[treeList[i].id].expanded = value;
-        }
+      let treeList = this.menuList;
+      for (let i = 0; i < treeList.length; i++) {
+        console.log("展开：", value);
+        console.log("menuListTree == = ", this.$refs.menuListTree.store.nodesMap[treeList[i].menuId])
+        console.log("展开id：", treeList[i]);
+        this.$refs.menuListTree.store.nodesMap[treeList[i].menuId].expanded = value;
+        this.$refs.menuListTree.root.expanded = value;
       }
     },
     // 树权限（全选/全不选）
     handleCheckedTreeNodeAll(value, type) {
-      if (type == 'menu') {
-        this.$refs.menuListTree.setCheckedNodes(value ? this.menuList: []);
-      } else if (type == 'dept') {
-        this.$refs.dept.setCheckedNodes(value ? this.deptOptions: []);
-      }
+      this.$refs.menuListTree.setCheckedNodes(value ? this.menuList : []);
     },
     // 树权限（父子联动）
     handleCheckedTreeConnect(value, type) {
-      if (type == 'menu') {
-        this.form.menuCheckStrictly = value ? true: false;
-      } else if (type == 'dept') {
-        this.form.deptCheckStrictly = value ? true: false;
-      }
+      this.form.menuCheckStrictly = value ? true : false;
     },
     // 表单提交
     dataFormSubmit() {
@@ -193,13 +188,15 @@ export default {
               roleId: this.dataForm.id || undefined,
               roleName: this.dataForm.roleName,
               remark: this.dataForm.remark,
+              status: this.dataForm.status,
+              roleKey: this.dataForm.roleKey,
               menuIdList: [].concat(
                 this.$refs.menuListTree.getCheckedKeys(),
                 [this.tempKey],
                 this.$refs.menuListTree.getHalfCheckedKeys()
               )
             })
-          }).then(({ data }) => {
+          }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({
                 message: "操作成功",

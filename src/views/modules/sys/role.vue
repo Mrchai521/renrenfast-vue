@@ -67,7 +67,8 @@
           size="mini"
           :disabled="single"
           @click="addOrUpdateHandle"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -76,12 +77,13 @@
           icon="el-icon-delete"
           size="mini"
           :disabled="multiple"
-          @click="deleteHandle"
-        >删除</el-button>
+          @click="handleDelete"
+        >删除
+        </el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
-      </el-col>
+      <!--      <el-col :span="1.5">-->
+      <!--        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>-->
+      <!--      </el-col>-->
       <right-toolbar @queryTable="getDataList"></right-toolbar>
     </el-row>
 
@@ -93,11 +95,11 @@
       style="width: 100%;"
       :header-cell-style="getRowClass"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="角色编号" prop="roleId" width="120" />
-      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="显示顺序" prop="roleSort" width="100" />
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="角色编号" prop="roleId" width="120"/>
+      <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="权限字符" prop="roleKey" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="显示顺序" prop="roleSort" width="100"/>
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
           <el-switch
@@ -123,20 +125,23 @@
             type="text"
             size="small"
             @click="addOrUpdateHandle(scope.row.roleId)"
-          >修改</el-button>
+          >修改
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-circle-check"
             @click="handleDataScope(scope.row)"
-          >数据权限</el-button>
+          >数据权限
+          </el-button>
           <el-button
             icon="el-icon-delete"
             v-if="isAuth('sys:role:delete')"
             type="text"
             size="small"
             @click="deleteHandle(scope.row.roleId)"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -159,17 +164,21 @@
 
 <script>
 import AddOrUpdate from "./role-add-or-update";
+
 export default {
   data() {
     return {
       dataForm: {
         roleName: ""
       },
+      single: true,
+      // 非多个禁用
+      multiple: true,
       // 日期范围
       dateRange: [],
       statusOptions: [
-        { value: "0", label: "正常" },
-        { value: "1", label: "禁用" }
+        {value: "0", label: "正常"},
+        {value: "1", label: "禁用"}
       ],
       // 查询参数
       queryParams: {
@@ -190,13 +199,13 @@ export default {
       // 表单校验
       rules: {
         roleName: [
-          { required: true, message: "角色名称不能为空", trigger: "blur" }
+          {required: true, message: "角色名称不能为空", trigger: "blur"}
         ],
         roleKey: [
-          { required: true, message: "权限字符不能为空", trigger: "blur" }
+          {required: true, message: "权限字符不能为空", trigger: "blur"}
         ],
         roleSort: [
-          { required: true, message: "角色顺序不能为空", trigger: "blur" }
+          {required: true, message: "角色顺序不能为空", trigger: "blur"}
         ]
       }
     };
@@ -208,12 +217,28 @@ export default {
     this.getDataList();
   },
   methods: {
-    getRowClass({ rowIndex }) {
+    getRowClass({rowIndex}) {
       if (rowIndex == 0) {
         return "background-color:#f8f8f9;font-size:13px;text-algin:center;";
       } else {
         return " ";
       }
+    },
+
+    // 角色状态修改
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$confirm('确认要"' + text + '""' + row.roleName + '"角色吗?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function () {
+        // return changeRoleStatus(row.roleId, row.status);
+      }).then(() => {
+        // this.msgSuccess(text + "成功");
+      }).catch(function () {
+        row.status = row.status === "0" ? "1" : "0";
+      });
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -237,7 +262,7 @@ export default {
           limit: this.queryParams.pageSize,
           roleName: this.queryParams.roleName
         })
-      }).then(({ data }) => {
+      }).then(({data}) => {
         if (data && data.code === 0) {
           this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
@@ -259,24 +284,43 @@ export default {
       this.queryParams.pageNum = val;
       this.getDataList();
     },
-    // 多选
+    // 多选框选中数据
     selectionChangeHandle(val) {
-      this.dataListSelections = val;
+      this.ids = val.map(item => item.roleId);
+      this.single = val.length !== 1;
+      this.multiple = !val.length;
+      // this.dataListSelections = val;
     },
     // 新增 / 修改
     addOrUpdateHandle(id) {
+      console.log("修改的id:====",id)
       this.addOrUpdateVisible = true;
       this.$nextTick(() => {
         this.$refs.addOrUpdate.init(id);
       });
+    },
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      console.log("row====",row)
+      const roleIds = row.roleId || this.ids;
+      this.$confirm('是否确认删除角色编号为"' + roleIds + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        // return delRole(roleIds);
+      }).then(() => {
+        // this.getList();
+        // this.msgSuccess("删除成功");
+      })
     },
     // 删除
     deleteHandle(id) {
       var ids = id
         ? [id]
         : this.dataListSelections.map(item => {
-            return item.roleId;
-          });
+          return item.roleId;
+        });
       this.$confirm(
         `确定对[id=${ids.join(",")}]进行[${id ? "删除" : "批量删除"}]操作?`,
         "提示",
@@ -291,7 +335,7 @@ export default {
             url: this.$http.adornUrl("/sys/role/delete"),
             method: "post",
             data: this.$http.adornData(ids, false)
-          }).then(({ data }) => {
+          }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({
                 message: "操作成功",
@@ -306,7 +350,8 @@ export default {
             }
           });
         })
-        .catch(() => {});
+        .catch(() => {
+        });
     }
   }
 };
