@@ -54,7 +54,8 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -64,7 +65,8 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
@@ -73,12 +75,12 @@
     </el-row>
 
     <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="字典编码" align="center" prop="dictCode" />
-      <el-table-column label="字典标签" align="center" prop="dictLabel" />
-      <el-table-column label="字典键值" align="center" prop="dictValue" />
-      <el-table-column label="字典排序" align="center" prop="dictSort" />
-      <el-table-column label="创建时间" align="center" prop="createTime" />
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="字典编码" align="center" prop="dictCode"/>
+      <el-table-column label="字典标签" align="center" prop="dictLabel"/>
+      <el-table-column label="字典键值" align="center" prop="dictValue"/>
+      <el-table-column label="字典排序" align="center" prop="dictSort"/>
+      <el-table-column label="创建时间" align="center" prop="createTime"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === '1'" size="small" type="danger">禁用</el-tag>
@@ -93,7 +95,8 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -113,16 +116,16 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="字典类型" prop="dictType">
-          <el-input v-model="form.dictType" placeholder="请输入字典类型" disabled="disabled" />
+          <el-input v-model="form.dictType" placeholder="请输入字典类型" disabled="disabled"/>
         </el-form-item>
         <el-form-item label="字典标签" prop="dictLabel">
-          <el-input v-model="form.dictLabel" placeholder="请输入字典标签" />
+          <el-input v-model="form.dictLabel" placeholder="请输入字典标签"/>
         </el-form-item>
         <el-form-item label="字典键值" prop="dictValue">
-          <el-input v-model="form.dictValue" placeholder="请输入字典键值" />
+          <el-input v-model="form.dictValue" placeholder="请输入字典键值"/>
         </el-form-item>
         <el-form-item label="显示排序" prop="dictSort">
-          <el-input-number v-model="form.dictSort" controls-position="right" :min="1" :max="10" />
+          <el-input-number v-model="form.dictSort" controls-position="right" :min="1" :max="10"/>
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -130,11 +133,12 @@
               v-for="dict in statusOptions"
               :key="dict.value"
               :label="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -153,8 +157,8 @@ import {
   addData,
   updateData,
   findData
-} from "@/api/data";
-import { listType, getType } from "@/api/type";
+} from "@/api/system/dict/data";
+import {listType, getType} from "@/api/system/dict/type";
 
 export default {
   name: "Data",
@@ -177,8 +181,8 @@ export default {
       dataList: [],
       // 状态数据字典
       statusOptions: [
-        { value: "0", label: "正常" },
-        { value: "1", label: "禁用" }
+        {value: "0", label: "正常"},
+        {value: "1", label: "禁用"}
       ],
       // 弹出层标题
       title: "",
@@ -200,13 +204,13 @@ export default {
       // 表单校验
       rules: {
         dictLabel: [
-          { required: true, message: "字典标签不能为空", trigger: "blur" }
+          {required: true, message: "字典标签不能为空", trigger: "blur"}
         ],
         dictValue: [
-          { required: true, message: "字典键值不能为空", trigger: "blur" }
+          {required: true, message: "字典键值不能为空", trigger: "blur"}
         ],
         dictSort: [
-          { required: true, message: "字典排序不能为空", trigger: "blur" }
+          {required: true, message: "字典排序不能为空", trigger: "blur"}
         ]
       }
     };
@@ -376,7 +380,7 @@ export default {
           type: "warning"
         }
       )
-        .then(function() {
+        .then(function () {
           return delData(dictCodes);
         })
         .then(() => {
@@ -395,7 +399,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(function() {
+        .then(function () {
           return exportData(queryParams);
         })
         .then(response => {

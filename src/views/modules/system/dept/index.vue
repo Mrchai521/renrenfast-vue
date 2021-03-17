@@ -136,8 +136,8 @@ import {
   addDept,
   updateDept,
   listDeptExcludeChild
-} from "@/api/dept";
-import { findData } from "@/api/data";
+} from "@/api/system/dept/dept";
+import { findData } from "@/api/system/dict/data";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 

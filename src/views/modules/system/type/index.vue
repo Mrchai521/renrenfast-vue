@@ -185,7 +185,7 @@ import {
   delType,
   addType,
   updateType
-} from "@/api/type";
+} from "@/api/system/dict/type";
 
 export default {
   name: "Type",
@@ -267,8 +267,6 @@ export default {
         updateTime: null,
         remark: null
       };
-      //this.resetForm("form");
-      // this.$refs[form].resetFields();
     },
     // 每页数
     sizeChangeHandle(val) {
@@ -321,7 +319,7 @@ export default {
         if (valid) {
           if (this.form.dictId != null) {
             updateType(this.form).then(response => {
-              if (response.data.code == 0) {
+              if (response.data.code === 0) {
                 this.$message({
                   message: "修改成功",
                   type: "success",
@@ -337,7 +335,7 @@ export default {
             });
           } else {
             addType(this.form).then(response => {
-              if (response.data.code == 0) {
+              if (response.data.code === 0) {
                 this.$message({
                   message: "新增成功",
                   type: "success",

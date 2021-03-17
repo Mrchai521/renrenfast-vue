@@ -71,6 +71,7 @@
 
 <script>
 import {treeDataTranslate} from "@/utils";
+import {getRoleListNoQuery, getRoleInfo} from "@/api/system/role/role";
 
 export default {
   data() {
@@ -95,8 +96,9 @@ export default {
         menuCheckStrictly: '',
         roleName: "",
         status: "",
-        remark: ""
-
+        remark: "",
+        pageNum: "",
+        pageSize: ""
       },
       dataRule: {
         roleName: [
@@ -120,41 +122,42 @@ export default {
         method: "get",
         params: this.$http.adornParams()
       })
-        .then(({data}) => {
-          this.menuList = treeDataTranslate(data, "menuId");
-        })
-        .then(() => {
-          this.visible = true;
-          this.$nextTick(() => {
-            this.$refs["dataForm"].resetFields();
-            this.$refs.menuListTree.setCheckedKeys([]);
-          });
-        })
-        .then(() => {
-          if (this.dataForm.id) {
-            this.$http({
-              url: this.$http.adornUrl(`/sys/role/info/${this.dataForm.id}`),
-              method: "get",
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.dataForm.roleName = data.role.roleName;
-                this.dataForm.roleKey = data.role.roleKey;
-                this.dataForm.roleSort = data.role.roleSort;
-                this.dataForm.status = data.role.status;
-                this.dataForm.remark = data.role.remark;
-                var idx = data.role.menuIdList.indexOf(this.tempKey);
-                if (idx !== -1) {
-                  data.role.menuIdList.splice(
-                    idx,
-                    data.role.menuIdList.length - idx
-                  );
-                }
-                this.$refs.menuListTree.setCheckedKeys(data.role.menuIdList);
-              }
-            });
-          }
+
+      .then(({data}) => {
+        console.log("data:==",data)
+        this.menuList = treeDataTranslate(data, "menuId");
+      }).then(() => {
+        this.visible = true;
+        this.$nextTick(() => {
+          this.$refs["dataForm"].resetFields();
+          this.$refs.menuListTree.setCheckedKeys([]);
         });
+      }).then(() => {
+        if (this.dataForm.id) {
+          this.$http({
+            url: this.$http.adornUrl(`/sys/role/info/${this.dataForm.id}`),
+            method: "get",
+            params: this.$http.adornParams()
+          })
+          .then(({data}) => {
+            if (data && data.code === 0) {
+              this.dataForm.roleName = data.role.roleName;
+              this.dataForm.roleKey = data.role.roleKey;
+              this.dataForm.roleSort = data.role.roleSort;
+              this.dataForm.status = data.role.status;
+              this.dataForm.remark = data.role.remark;
+              var idx = data.role.menuIdList.indexOf(this.tempKey);
+              if (idx !== -1) {
+                data.role.menuIdList.splice(
+                  idx,
+                  data.role.menuIdList.length - idx
+                );
+              }
+              this.$refs.menuListTree.setCheckedKeys(data.role.menuIdList);
+            }
+          });
+        }
+      });
     },
     // 树权限（展开/折叠）
     handleCheckedTreeExpand(value, type) {

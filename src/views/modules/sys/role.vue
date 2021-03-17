@@ -77,7 +77,7 @@
           icon="el-icon-delete"
           size="mini"
           :disabled="multiple"
-          @click="handleDelete"
+          @click="deleteHandle"
         >删除
         </el-button>
       </el-col>
@@ -164,6 +164,7 @@
 
 <script>
 import AddOrUpdate from "./role-add-or-update";
+import {getRoleList, delRoles} from "@/api/system/role/role";
 
 export default {
   data() {
@@ -254,15 +255,7 @@ export default {
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true;
-      this.$http({
-        url: this.$http.adornUrl("/sys/role/list"),
-        method: "get",
-        params: this.$http.adornParams({
-          page: this.queryParams.pageNum,
-          limit: this.queryParams.pageSize,
-          roleName: this.queryParams.roleName
-        })
-      }).then(({data}) => {
+      getRoleList(this.queryParams).then(({data}) => {
         if (data && data.code === 0) {
           this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
@@ -293,7 +286,6 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle(id) {
-      console.log("修改的id:====",id)
       this.addOrUpdateVisible = true;
       this.$nextTick(() => {
         this.$refs.addOrUpdate.init(id);
@@ -301,28 +293,33 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      console.log("row====",row)
       const roleIds = row.roleId || this.ids;
       this.$confirm('是否确认删除角色编号为"' + roleIds + '"的数据项?', "警告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(function() {
-        // return delRole(roleIds);
-      }).then(() => {
-        // this.getList();
-        // this.msgSuccess("删除成功");
-      })
+      }).then(function () {
+        delRoles(roleIds).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: "删除成功！",
+              type: "success",
+              duration: 1500,
+              onClose: () => {
+                this.getDataList();
+              }
+            });
+          } else {
+            this.$message.error(data.msg);
+          }
+        });
+      });
     },
     // 删除
     deleteHandle(id) {
-      var ids = id
-        ? [id]
-        : this.dataListSelections.map(item => {
-          return item.roleId;
-        });
+      const roleIds = id.roleId || this.ids;
       this.$confirm(
-        `确定对[id=${ids.join(",")}]进行[${id ? "删除" : "批量删除"}]操作?`,
+        `确定对[id=${roleIds.join(",")}]进行[${id ? "删除" : "批量删除"}]操作?`,
         "提示",
         {
           confirmButtonText: "确定",
@@ -331,14 +328,10 @@ export default {
         }
       )
         .then(() => {
-          this.$http({
-            url: this.$http.adornUrl("/sys/role/delete"),
-            method: "post",
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
+          delRoles(roleIds).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({
-                message: "操作成功",
+                message: "删除成功！",
                 type: "success",
                 duration: 1500,
                 onClose: () => {
