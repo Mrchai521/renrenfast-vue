@@ -124,7 +124,7 @@
             v-if="isAuth('sys:role:update')"
             type="text"
             size="small"
-            @click="addOrUpdateHandle(scope.row.roleId)"
+            @click="updateHandle(scope.row)"
           >修改
           </el-button>
           <el-button
@@ -164,11 +164,12 @@
 
 <script>
 import AddOrUpdate from "./role-add-or-update";
-import {getRoleList, delRoles} from "@/api/system/role/role";
+import {getRoleList, delRoles, changeRoleStatus} from "@/api/system/role/role";
 
 export default {
   data() {
     return {
+      ids: [],
       dataForm: {
         roleName: ""
       },
@@ -187,7 +188,9 @@ export default {
         pageSize: 10,
         roleName: undefined,
         roleKey: undefined,
-        status: undefined
+        status: undefined,
+        startTime: '',
+        endTime: '',
       },
       // 总条数
       totalPage: 0,
@@ -234,9 +237,16 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(function () {
-        // return changeRoleStatus(row.roleId, row.status);
+        return changeRoleStatus(row);
       }).then(() => {
-        // this.msgSuccess(text + "成功");
+        this.$message({
+          message: text + " 成功！",
+          type: "success",
+          duration: 1500,
+          onClose: () => {
+            this.getDataList();
+          }
+        })
       }).catch(function () {
         row.status = row.status === "0" ? "1" : "0";
       });
@@ -254,8 +264,15 @@ export default {
     },
     // 获取数据列表
     getDataList() {
+      let params = '';
+      if (this.dateRange.length !== 0) {
+        this.queryParams.startTime = this.dateRange[0];
+        this.queryParams.endTime = this.dateRange[1];
+        params = this.queryParams
+      }
+      params = this.queryParams;
       this.dataListLoading = true;
-      getRoleList(this.queryParams).then(({data}) => {
+      getRoleList(params).then(({data}) => {
         if (data && data.code === 0) {
           this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
@@ -285,10 +302,17 @@ export default {
       // this.dataListSelections = val;
     },
     // 新增 / 修改
-    addOrUpdateHandle(id) {
+    addOrUpdateHandle() {
       this.addOrUpdateVisible = true;
       this.$nextTick(() => {
-        this.$refs.addOrUpdate.init(id);
+        this.$refs.addOrUpdate.init(this.ids[0]);
+      });
+    },
+    //  修改
+    updateHandle(row) {
+      this.addOrUpdateVisible = true;
+      this.$nextTick(() => {
+        this.$refs.addOrUpdate.init(row.roleId);
       });
     },
     /** 删除按钮操作 */

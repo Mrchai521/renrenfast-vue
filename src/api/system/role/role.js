@@ -8,17 +8,22 @@ export function getRoleList(query) {
     params: httpRequest.adornParams({
       'page': query.pageNum,
       'limit': query.pageSize,
-      'roleName': query.roleName
+      'roleName': query.roleName,
+      'roleKey': query.roleKey,
+      'status': query.status,
+      'createTime': query.startTime
     })
   })
 }
-export function getRoleListNoQuery(){
+
+export function getRoleListNoQuery() {
   return httpRequest({
     url: httpRequest.adornUrl(`/sys/role/list`),
     method: 'get',
     params: httpRequest.adornParams()
   })
 }
+
 // 查询角色详情
 export function getRoleInfo(roleId) {
   return httpRequest({
@@ -44,12 +49,16 @@ export function roleDeptTreeselect(roleId) {
   })
 }
 
-// 新增部门
-export function addDept(data) {
+// 修改角色状态
+export function changeRoleStatus(data) {
   return httpRequest({
-    url: httpRequest.adornUrl(`/system/dept`),
+    url: httpRequest.adornUrl(`/sys/role/changeRoleStatus`),
     method: 'post',
     data: httpRequest.adornData(data, false)
+   //  params: httpRequest.adornParams({
+   //    'roleId': data.roleId,
+   //    'status': data.status
+   //  })
   })
 }
 

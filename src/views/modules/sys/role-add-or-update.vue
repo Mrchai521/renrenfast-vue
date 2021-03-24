@@ -42,9 +42,9 @@
           :data="menuList"
           show-checkbox
           ref="menuListTree"
-          node-key="id"
+          node-key="menuId"
           :check-strictly="!dataForm.menuCheckStrictly"
-          empty-text="加载中，请稍后"
+          empty-text="加载中，请稍后..."
           :props="menuListTreeProps"
         ></el-tree>
       </el-form-item>
@@ -71,16 +71,18 @@
 
 <script>
 import {treeDataTranslate} from "@/utils";
-import {getRoleListNoQuery, getRoleInfo} from "@/api/system/role/role";
+import {getRoleInfo} from "@/api/system/role/role";
+import {getMenuList} from "@/api/system/menu/menu"
 
 export default {
   data() {
     return {
       visible: false,
+      // 菜单列表
       menuList: [],
       menuListTreeProps: {
-        label: "name",
-        children: "children"
+        children: 'children',
+        label: 'name'
       },
       menuExpand: false,
       menuNodeAll: false,
@@ -93,7 +95,7 @@ export default {
         id: 0,
         roleKey: "",
         roleSort: "",
-        menuCheckStrictly: '',
+        menuCheckStrictly: true,
         roleName: "",
         status: "",
         remark: "",
@@ -117,14 +119,7 @@ export default {
   methods: {
     init(id) {
       this.dataForm.id = id || 0;
-      this.$http({
-        url: this.$http.adornUrl("/sys/menu/list"),
-        method: "get",
-        params: this.$http.adornParams()
-      })
-
-      .then(({data}) => {
-        console.log("data:==",data)
+      getMenuList().then(({data}) => {
         this.menuList = treeDataTranslate(data, "menuId");
       }).then(() => {
         this.visible = true;
@@ -134,12 +129,7 @@ export default {
         });
       }).then(() => {
         if (this.dataForm.id) {
-          this.$http({
-            url: this.$http.adornUrl(`/sys/role/info/${this.dataForm.id}`),
-            method: "get",
-            params: this.$http.adornParams()
-          })
-          .then(({data}) => {
+          getRoleInfo(this.dataForm.id).then(({data}) => {
             if (data && data.code === 0) {
               this.dataForm.roleName = data.role.roleName;
               this.dataForm.roleKey = data.role.roleKey;
@@ -163,9 +153,6 @@ export default {
     handleCheckedTreeExpand(value, type) {
       let treeList = this.menuList;
       for (let i = 0; i < treeList.length; i++) {
-        console.log("展开：", value);
-        console.log("menuListTree == = ", this.$refs.menuListTree.store.nodesMap[treeList[i].menuId])
-        console.log("展开id：", treeList[i]);
         this.$refs.menuListTree.store.nodesMap[treeList[i].menuId].expanded = value;
         this.$refs.menuListTree.root.expanded = value;
       }
@@ -176,7 +163,7 @@ export default {
     },
     // 树权限（父子联动）
     handleCheckedTreeConnect(value, type) {
-      this.form.menuCheckStrictly = value ? true : false;
+      this.dataForm.menuCheckStrictly = value ? true : false;
     },
     // 表单提交
     dataFormSubmit() {
@@ -193,6 +180,7 @@ export default {
               remark: this.dataForm.remark,
               status: this.dataForm.status,
               roleKey: this.dataForm.roleKey,
+              roleSort: this.dataForm.roleSort,
               menuIdList: [].concat(
                 this.$refs.menuListTree.getCheckedKeys(),
                 [this.tempKey],
