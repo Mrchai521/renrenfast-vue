@@ -44,6 +44,9 @@
               <img src="~@/assets/img/avatar.png" :alt="userName">{{ userName }}
             </span>
             <el-dropdown-menu slot="dropdown">
+              <router-link to="/user/profile">
+                <el-dropdown-item>个人中心</el-dropdown-item>
+              </router-link>
               <el-dropdown-item @click.native="updatePasswordHandle()">修改密码</el-dropdown-item>
               <el-dropdown-item @click.native="logoutHandle()">退出</el-dropdown-item>
             </el-dropdown-menu>
@@ -98,6 +101,10 @@ export default {
     }
   },
   methods: {
+    // 个人中心
+    profileHandle() {
+
+    },
     // 修改密码
     updatePasswordHandle() {
       this.updatePassowrdVisible = true

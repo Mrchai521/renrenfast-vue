@@ -11,7 +11,8 @@ export function getRoleList(query) {
       'roleName': query.roleName,
       'roleKey': query.roleKey,
       'status': query.status,
-      'createTime': query.startTime
+      'startTime': query.startTime,
+      'endTime': query.endTime
     })
   })
 }
@@ -55,10 +56,10 @@ export function changeRoleStatus(data) {
     url: httpRequest.adornUrl(`/sys/role/changeRoleStatus`),
     method: 'post',
     data: httpRequest.adornData(data, false)
-   //  params: httpRequest.adornParams({
-   //    'roleId': data.roleId,
-   //    'status': data.status
-   //  })
+    //  params: httpRequest.adornParams({
+    //    'roleId': data.roleId,
+    //    'status': data.status
+    //  })
   })
 }
 
