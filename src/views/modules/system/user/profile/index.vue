@@ -65,14 +65,14 @@
 </template>
 
 <script>
-// import userAvatar from "./userAvatar";
-// import userInfo from "./userInfo";userAvatar, userInfo,
+import userAvatar from "./userAvatar";
+import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 import {getUserProfile} from "@/api/system/user/user";
 
 export default {
   name: "Profile",
-  components: {resetPwd},
+  components: {userAvatar, userInfo, resetPwd},
   data() {
     return {
       user: {},
@@ -90,6 +90,7 @@ export default {
         this.user = response.data.data;
         this.roleGroup = response.data.roleGroup;
         this.postGroup = response.data.postGroup;
+        console.log("this.user===", this.user)
       });
     }
   }

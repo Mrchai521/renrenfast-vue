@@ -24,13 +24,13 @@ export function updateUserPwd(password, newPassword) {
 // 修改个人信息
 export function updateUserProfile(data) {
   return httpRequest({
-    url: httpRequest.adornUrl(`/sys/user/password`),
-    method: 'post',
+    url: httpRequest.adornUrl(`/profile`),
+    method: 'put',
     data: httpRequest.adornData(data, false)
   })
 }
 
-//修改头像
+// 修改头像
 export function uploadAvatar(data) {
   return httpRequest({
     url: httpRequest.adornUrl(`/sys/user/password`),
